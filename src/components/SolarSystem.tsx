@@ -1,5 +1,6 @@
 import Sketch from "react-p5";
 import p5Types from "p5"; //Import this for typechecking and intellisense
+import SunTextureData from './SunTextureData.json'
 
 // interface ComponentProps {
 //   //Your component props
@@ -13,6 +14,7 @@ interface Star {
 
 export default function SolarSystem(): JSX.Element {
   let myCamera;
+  let sunImage: p5Types.Image;
   const stars: Star[] = [];
   const sun = { name: "Sun", distance: 0, radius: 100 };
   const planets = [
@@ -37,6 +39,10 @@ export default function SolarSystem(): JSX.Element {
     myCamera = p5.createCamera();
     myCamera.setPosition(0, -400, 1500);
     myCamera.lookAt(0, 0, 0);
+
+    //This should really be preloaded, but as a quick hack, we'll 
+    //start it loading now and check if it's ready on each frame before trying to use it.
+    sunImage = p5.loadImage(SunTextureData);
   };
 
   const draw = (p5: p5Types) => {
@@ -55,7 +61,11 @@ export default function SolarSystem(): JSX.Element {
   };
 
   const drawSun = (p5: p5Types) => {
-    p5.ambientMaterial(p5.color("#ed6663"));
+    if (sunImage) {  //loaded yet?
+      p5.texture(sunImage);
+    } else {
+      p5.ambientMaterial(p5.color("#ed6663"));
+    }
     p5.sphere(sun.radius);
   };
 
