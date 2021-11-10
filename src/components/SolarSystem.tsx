@@ -28,6 +28,9 @@ export default function SolarSystem(): JSX.Element {
     { name: "Neptune", distance: 1100, radius: 22, speed: 0.005, angle: 0 },
   ];
 
+  const preload = (p5: p5Types) => {
+    sunImage = p5.loadImage(SunTextureData);
+  }
   const setup = (p5: p5Types, canvasParentRef: Element) => {
     p5.createCanvas(p5.windowWidth, p5.windowHeight, p5.WEBGL);
     createStars(p5);
@@ -39,10 +42,6 @@ export default function SolarSystem(): JSX.Element {
     myCamera = p5.createCamera();
     myCamera.setPosition(0, -400, 1500);
     myCamera.lookAt(0, 0, 0);
-
-    //This should really be preloaded, but as a quick hack, we'll 
-    //start it loading now and check if it's ready on each frame before trying to use it.
-    sunImage = p5.loadImage(SunTextureData);
   };
 
   const draw = (p5: p5Types) => {
@@ -61,7 +60,9 @@ export default function SolarSystem(): JSX.Element {
   };
 
   const drawSun = (p5: p5Types) => {
-    if (sunImage) {  //loaded yet?
+    //This test won't be necessary for production, as sunImage is loaded in preload.  
+    // However, setup() and preload() are not getting called during react dev server's hot-reloading
+    if (sunImage) {
       p5.texture(sunImage);
     } else {
       p5.ambientMaterial(p5.color("#ed6663"));
@@ -140,5 +141,5 @@ export default function SolarSystem(): JSX.Element {
     p5.sphere(1);
   }
 
-  return <Sketch setup={setup} draw={draw} />;
+  return <Sketch setup={setup} draw={draw} preload={preload} />;
 }
