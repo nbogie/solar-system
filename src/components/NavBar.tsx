@@ -1,18 +1,20 @@
 import "./NavBar.css";
 import Planet from "./Planet";
-
-export default function NavBar(): JSX.Element {
+interface NavBarProps {
+  handlePlanetNameClick: (name: string) => void;
+}
+export default function NavBar(props: NavBarProps): JSX.Element {
   return (
     <nav className="NavBar">
       <ul>
-        <Planet name={"Mercury"} />
-        <Planet name={"Venus"} />
-        <Planet name={"Earth"} />
-        <Planet name={"Mars"} />
-        <Planet name={"Jupiter"} />
-        <Planet name={"Saturn"} />
-        <Planet name={"Uranus"} />
-        <Planet name={"Neptune"} />
+        <Planet name={"Mercury"} onClick={props.handlePlanetNameClick} />
+        <Planet name={"Venus"} onClick={props.handlePlanetNameClick} />
+        <Planet name={"Earth"} onClick={props.handlePlanetNameClick} />
+        <Planet name={"Mars"} onClick={props.handlePlanetNameClick} />
+        <Planet name={"Jupiter"} onClick={props.handlePlanetNameClick} />
+        <Planet name={"Saturn"} onClick={props.handlePlanetNameClick} />
+        <Planet name={"Uranus"} onClick={props.handlePlanetNameClick} />
+        <Planet name={"Neptune"} onClick={props.handlePlanetNameClick} />
       </ul>
     </nav>
   );
