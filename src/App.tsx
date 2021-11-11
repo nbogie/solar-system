@@ -17,8 +17,7 @@ function App(): JSX.Element {
     <>
       <AppHeader />
       <NavBar handlePlanetNameClick={handlePlanetNameClick} />
-      {/* <SolarSystem selectedPlanetRef={selectedPlanetRef} /> */}
-      <SolarSystem />
+      <SolarSystem selectedPlanetRef={selectedPlanetRef} />
     </>
   );
 }

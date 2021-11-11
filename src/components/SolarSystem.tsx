@@ -1,5 +1,6 @@
 import Sketch from "react-p5";
 import p5Types from "p5"; //Import this for typechecking and intellisense
+import { MutableRefObject } from "react";
 
 interface Star {
   x: number;
@@ -21,10 +22,15 @@ interface Planet {
   speed: number;
   angle: number;
   img: p5Types.Image | undefined;
+  position?: p5Types.Vector;
+}
+interface SolarSystemProps {
+  selectedPlanetRef: MutableRefObject<string | null>
 }
 
-export default function SolarSystem(): JSX.Element {
-  let myCamera;
+export default function SolarSystem(props: SolarSystemProps): JSX.Element {
+  let myCamera: p5Types.Camera;
+  let cameraTarget: Planet | null = null;
   const stars: Star[] = [];
   const sun: Sun = {
     name: "Sun",
@@ -134,13 +140,9 @@ export default function SolarSystem(): JSX.Element {
   };
 
   const setup = (p5: p5Types, canvasParentRef: Element) => {
-    p5.createCanvas(p5.windowWidth - 25, p5.windowHeight - 130, p5.WEBGL);
+    p5.createCanvas(p5.windowWidth - 25, p5.windowHeight - 130, p5.WEBGL).parent(canvasParentRef);
     createStars(p5);
-
-    //Camera position
-    myCamera = p5.createCamera();
-    myCamera.setPosition(0, -400, 1500);
-    myCamera.lookAt(0, 0, 0);
+    setupCamera(p5);
   };
 
   const draw = (p5: p5Types) => {
@@ -152,13 +154,28 @@ export default function SolarSystem(): JSX.Element {
 
     p5.noStroke();
 
+
+    updatePlanets(p5);
+    updateCameraTracking(p5);
+
     drawStars(p5);
     drawSun(p5);
     drawOrbits(p5);
     drawPlanets(p5);
   };
 
+  const setupCamera = (p5: p5Types) => {
+    myCamera = p5.createCamera();
+    myCamera.setPosition(0, -400, 1500);
+    myCamera.lookAt(0, 0, 0);
+  };
+
+  function findPlanetByName(name: string): Planet | null {
+    const result = planets.find(p => p.name === name);
+    return result ? result : null;
+  }
   const drawSun = (p5: p5Types) => {
+    p5.push();
     if (sun.img !== undefined) {
       p5.texture(sun.img);
     } else {
@@ -166,53 +183,49 @@ export default function SolarSystem(): JSX.Element {
     }
     p5.rotateY(p5.frameCount / 100);
     p5.sphere(sun.radius);
+    p5.pop();
   };
 
   const drawPlanets = (p5: p5Types) => {
     for (const planet of planets) {
       p5.push();
-      planet.angle = drawPlanet(
-        p5,
-        planet.name,
-        planet.distance,
-        planet.radius,
-        planet.speed,
-        planet.angle,
-        planet.img
-      );
+      drawPlanet(p5, planet);
       p5.pop();
     }
   };
+  const updatePlanets = (p5: p5Types) => {
+    for (const planet of planets) {
+      updatePlanet(p5, planet);
+    }
+  };
+
+  function updatePlanet(p5: p5Types, planet: Planet) {
+    const x = planet.distance * p5.cos(planet.angle);
+    const y = planet.distance * p5.sin(planet.angle);
+    planet.position = p5.createVector(x, 0, y);
+    planet.angle += planet.speed;
+  }
 
   function drawPlanet(
     p5: p5Types,
-    name: string,
-    distance: number,
-    radius: number,
-    speed: number,
-    angle: number,
-    img: p5Types.Image | undefined
+    planet: Planet,
   ) {
-    const x = distance * p5.cos(angle);
-    const y = distance * p5.sin(angle);
-
-    p5.translate(x, 0, y);
-    angle += speed;
-    if (img !== undefined) {
-      p5.texture(img);
+    if (planet.position) {
+      p5.translate(planet.position);
+    }
+    if (planet.img !== undefined) {
+      p5.texture(planet.img);
     } else {
       p5.ambientMaterial(p5.color("#e93dc8"));
     }
     p5.rotateY(p5.frameCount / 100);
-    p5.sphere(radius);
+    p5.sphere(planet.radius);
 
-    if (name === "Saturn") {
+    if (planet.name === "Saturn") {
       drawRings(p5, 100);
-    } else if (name === "Earth") {
+    } else if (planet.name === "Earth") {
       drawMoon(p5);
     }
-
-    return angle;
   }
 
   const drawMoon = (p5: p5Types) => {
@@ -273,5 +286,23 @@ export default function SolarSystem(): JSX.Element {
     p5.sphere(3);
   }
 
-  return <Sketch setup={setup} draw={draw} preload={preload} />;
+  function updateCameraTracking(p5: p5Types) {
+    // if props has a selected planet but we're not yet tracking it, do so
+    if (props.selectedPlanetRef.current && (!cameraTarget || cameraTarget.name !== props.selectedPlanetRef.current)) {
+      cameraTarget = findPlanetByName(props.selectedPlanetRef.current);
+    }
+    // if we have a target, look at it!
+    if (cameraTarget && cameraTarget.position && myCamera) {
+      myCamera.lookAt(
+        cameraTarget.position.x,
+        cameraTarget.position.y,
+        cameraTarget.position.z
+      );
+    }
+  }
+
+  function keyPressed(p5: p5Types) {
+    console.log('key was pressed: ', p5.key);
+  }
+  return <Sketch setup={setup} draw={draw} preload={preload} keyPressed={keyPressed} />;
 }
