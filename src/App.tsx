@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import "./App.css";
 import AppHeader from "./components/AppHeader";
 import NavBar from "./components/NavBar";
 import SolarSystem from "./components/SolarSystem";
@@ -14,7 +13,7 @@ function App(): JSX.Element {
   const selectedPlanetRef = useRef<string | null>(null);
   const [counter, setCounter] = useState(0);
 
-  function handlePlanetNameClick(name: string) {
+  function handlePlanetNameClick(name: string | null) {
     selectedPlanetRef.current = name;
   }
 
@@ -22,8 +21,9 @@ function App(): JSX.Element {
     <>
       <AppHeader />
       <NavBar handlePlanetNameClick={handlePlanetNameClick} />
-      <button onClick={() => { setCounter(p => p + 1) }}>click me</button>
-      {/* demonstrating the parent app can get re-rendered without the child also getting re-rendered. */}
+      <button onClick={() => handlePlanetNameClick(null)}>stop camera-follow</button>
+      <button onClick={() => { setCounter(p => p + 1) }}>+1</button>
+      {/* demonstrating the parent app CAN get re-rendered without the child also getting re-rendered. */}
       {counter}
       <SolarSystem selectedPlanetRef={selectedPlanetRef} />
     </>

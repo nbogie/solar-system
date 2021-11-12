@@ -305,6 +305,8 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
     // if props has a selected planet but we're not yet tracking it, do so
     if (props.selectedPlanetRef.current && (!cameraTargetPlanet || cameraTargetPlanet.name !== props.selectedPlanetRef.current)) {
       cameraTargetPlanet = findPlanetByName(props.selectedPlanetRef.current);
+    } else {
+      cameraTargetPlanet = null;
     }
     // If we have a target, move ('lerp') our look target a little towards it, rather than simply setting it.
     // We do this with for smooth transitions when the target changes.
