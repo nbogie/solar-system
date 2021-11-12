@@ -30,7 +30,8 @@ interface SolarSystemProps {
 
 function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
   let myCamera: p5Types.Camera;
-  let cameraTarget: Planet | null = null;
+  let cameraTargetPlanet: Planet | null = null;
+  let cameraTargetPosition: p5Types.Vector;
   let isSpeedFlexible = false;
 
   const stars: Star[] = [];
@@ -174,7 +175,8 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
   const setupCamera = (p5: p5Types) => {
     myCamera = p5.createCamera();
     myCamera.setPosition(0, -400, 1500);
-    myCamera.lookAt(0, 0, 0);
+    cameraTargetPosition = p5.createVector(0, 0, 0);
+    myCamera.lookAt(cameraTargetPosition.x, cameraTargetPosition.y, cameraTargetPosition.z);
   };
 
   function findPlanetByName(name: string): Planet | null {
@@ -301,17 +303,21 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
 
   function updateCameraTracking(p5: p5Types) {
     // if props has a selected planet but we're not yet tracking it, do so
-    if (props.selectedPlanetRef.current && (!cameraTarget || cameraTarget.name !== props.selectedPlanetRef.current)) {
-      cameraTarget = findPlanetByName(props.selectedPlanetRef.current);
+    if (props.selectedPlanetRef.current && (!cameraTargetPlanet || cameraTargetPlanet.name !== props.selectedPlanetRef.current)) {
+      cameraTargetPlanet = findPlanetByName(props.selectedPlanetRef.current);
     }
-    // if we have a target, look at it!
-    if (cameraTarget && cameraTarget.position && myCamera) {
-      myCamera.lookAt(
-        cameraTarget.position.x,
-        cameraTarget.position.y,
-        cameraTarget.position.z
-      );
+    // If we have a target, move ('lerp') our look target a little towards it, rather than simply setting it.
+    // We do this with for smooth transitions when the target changes.
+    if (cameraTargetPlanet && cameraTargetPlanet.position && myCamera) {
+      cameraTargetPosition.lerp(cameraTargetPlanet?.position, 0.05);
     }
+
+    myCamera.lookAt(
+      cameraTargetPosition.x,
+      cameraTargetPosition.y,
+      cameraTargetPosition.z
+    );
+
   }
   function toggleInteractiveSpeed() {
     isSpeedFlexible = !isSpeedFlexible;
