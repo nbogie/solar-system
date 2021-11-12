@@ -330,7 +330,18 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
       toggleInteractiveSpeed();
     }
   }
-  return <Sketch setup={setup} draw={draw} preload={preload} keyPressed={keyPressed} />;
+  function windowResized(p5: p5Types) {
+    //slower than it should be, currently...
+    p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
+  }
+
+  return <Sketch
+    setup={setup}
+    draw={draw}
+    preload={preload}
+    keyPressed={keyPressed}
+    windowResized={windowResized}
+  />;
 }
 
 //Won't re-render just because parent does.  
