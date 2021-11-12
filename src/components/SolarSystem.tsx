@@ -1,6 +1,6 @@
 import Sketch from "react-p5";
 import p5Types from "p5"; //Import this for typechecking and intellisense
-import { MutableRefObject } from "react";
+import React, { MutableRefObject } from "react";
 
 interface Star {
   x: number;
@@ -28,7 +28,7 @@ interface SolarSystemProps {
   selectedPlanetRef: MutableRefObject<string | null>
 }
 
-export default function SolarSystem(props: SolarSystemProps): JSX.Element {
+function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
   let myCamera: p5Types.Camera;
   let cameraTarget: Planet | null = null;
   let isSpeedFlexible = false;
@@ -324,3 +324,10 @@ export default function SolarSystem(props: SolarSystemProps): JSX.Element {
   }
   return <Sketch setup={setup} draw={draw} preload={preload} keyPressed={keyPressed} />;
 }
+
+//Won't re-render just because parent does.  
+//Only if props change (or context)
+//https://reactjs.org/docs/react-api.html#reactmemo
+const SolarSystemMemoized = React.memo(SolarSystemRaw);
+export default SolarSystemMemoized;
+
