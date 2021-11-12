@@ -31,6 +31,8 @@ interface SolarSystemProps {
 export default function SolarSystem(props: SolarSystemProps): JSX.Element {
   let myCamera: p5Types.Camera;
   let cameraTarget: Planet | null = null;
+  let isSpeedFlexible = false;
+
   const stars: Star[] = [];
   const sun: Sun = {
     name: "Sun",
@@ -154,8 +156,12 @@ export default function SolarSystem(props: SolarSystemProps): JSX.Element {
 
     p5.noStroke();
 
-    // movementMultiplier will be -3 when the mouse is at x=0.  3 when the mouse is at x=canvas width.
-    const movementMultiplier: number = p5.map(p5.mouseX, 0, p5.width, -3, 3);
+    // movementMultiplier will be -3 when the mouse is at x=0.  
+    // and 3 when the mouse is at x=canvas width.
+    const movementMultiplier = isSpeedFlexible
+      ? p5.map(p5.mouseX, 0, p5.width, -3, 3)
+      : 1;
+
     updatePlanets(p5, movementMultiplier);
     updateCameraTracking(p5);
 
@@ -307,9 +313,14 @@ export default function SolarSystem(props: SolarSystemProps): JSX.Element {
       );
     }
   }
+  function toggleInteractiveSpeed() {
+    isSpeedFlexible = !isSpeedFlexible;
+  }
 
   function keyPressed(p5: p5Types) {
-    console.log('key was pressed: ', p5.key);
+    if (p5.key === 's') {
+      toggleInteractiveSpeed();
+    }
   }
   return <Sketch setup={setup} draw={draw} preload={preload} keyPressed={keyPressed} />;
 }
