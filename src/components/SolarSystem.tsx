@@ -154,8 +154,9 @@ export default function SolarSystem(props: SolarSystemProps): JSX.Element {
 
     p5.noStroke();
 
-
-    updatePlanets(p5);
+    // movementMultiplier will be -3 when the mouse is at x=0.  3 when the mouse is at x=canvas width.
+    const movementMultiplier: number = p5.map(p5.mouseX, 0, p5.width, -3, 3);
+    updatePlanets(p5, movementMultiplier);
     updateCameraTracking(p5);
 
     drawStars(p5);
@@ -193,17 +194,23 @@ export default function SolarSystem(props: SolarSystemProps): JSX.Element {
       p5.pop();
     }
   };
-  const updatePlanets = (p5: p5Types) => {
+  /**
+   * Move the planets along their orbit according to their individual speeds and the movementMultiplier
+   * @param movementMultiplier - A number to use to multiply the speed at which the planets orbit.  
+   * If zero, the planets will not move.  Can be negative, for backwards motion.
+   */
+  const updatePlanets = (p5: p5Types, movementMultiplier: number) => {
     for (const planet of planets) {
-      updatePlanet(p5, planet);
+      updatePlanet(p5, planet, movementMultiplier);
     }
   };
 
-  function updatePlanet(p5: p5Types, planet: Planet) {
+  //Mutates given planet object, adjusting its angle based on its speed.
+  function updatePlanet(p5: p5Types, planet: Planet, movementMultiplier: number) {
     const x = planet.distance * p5.cos(planet.angle);
     const y = planet.distance * p5.sin(planet.angle);
     planet.position = p5.createVector(x, 0, y);
-    planet.angle += planet.speed;
+    planet.angle += planet.speed * movementMultiplier
   }
 
   function drawPlanet(
