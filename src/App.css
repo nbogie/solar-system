@@ -3,4 +3,13 @@ body {
   background-color: #000;
   color: #fff;
   font-size: 18px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+canvas {
+  margin: 0;
+  position: absolute;
+  top: 0px;
+  z-index: -99;
 }
