@@ -1,0 +1,67 @@
+[
+  {
+    "name": "Mercury",
+    "distance": 139,
+    "radius": 5,
+    "speed": 0.05,
+    "angle": 0,
+    "imagePath": "https://i.postimg.cc/JzTyGCQ8/mercurymap.jpg"
+  },
+
+  {
+    "name": "Venus",
+    "distance": 172,
+    "radius": 12,
+    "speed": 0.035,
+    "angle": 1.57,
+    "imagePath": "https://i.postimg.cc/zGDbzGKp/venusmap.jpg"
+  },
+  {
+    "name": "Earth",
+    "distance": 200,
+    "radius": 13,
+    "speed": 0.029,
+    "angle": 0.52,
+    "imagePath": "https://i.postimg.cc/sg3SMcdY/earthmap1k.jpg"
+  },
+  {
+    "name": "Mars",
+    "distance": 252,
+    "radius": 7,
+    "speed": 0.024,
+    "angle": 4.71,
+    "imagePath": "https://i.postimg.cc/BQBPfKLX/mars-1k-color.jpg"
+  },
+  {
+    "name": "Jupiter",
+    "distance": 600,
+    "radius": 100,
+    "speed": 0.013,
+    "angle": 3.66,
+    "imagePath": "https://i.postimg.cc/FzjdRfTC/jupitermap.jpg"
+  },
+  {
+    "name": "Saturn",
+    "distance": 900,
+    "radius": 70,
+    "speed": 0.009,
+    "angle": 5.49,
+    "imagePath": "https://i.postimg.cc/MHkfq0mj/saturnmap.jpg"
+  },
+  {
+    "name": "Uranus",
+    "distance": 1000,
+    "radius": 25,
+    "speed": 0.006,
+    "angle": 2.36,
+    "imagePath": "https://i.postimg.cc/43ShFRKP/uranusmap.jpg"
+  },
+  {
+    "name": "Neptune",
+    "distance": 1100,
+    "radius": 22,
+    "speed": 0.005,
+    "angle": 0,
+    "imagePath": "https://i.postimg.cc/V600xZn8/neptunemap.jpg"
+  }
+]

@@ -1,7 +1,7 @@
 import Sketch from "react-p5";
 import p5Types from "p5"; //Import this for typechecking and intellisense
 import React, { MutableRefObject } from "react";
-
+import PlanetsData from './planetsData.json';
 interface Star {
   x: number;
   y: number;
@@ -12,7 +12,8 @@ interface Sun {
   name: string;
   distance: number;
   radius: number;
-  img: p5Types.Image | undefined;
+  img?: p5Types.Image;
+  imagePath: string;
 }
 
 interface Planet {
@@ -21,9 +22,12 @@ interface Planet {
   radius: number;
   speed: number;
   angle: number;
-  img: p5Types.Image | undefined;
+  img?: p5Types.Image;
+  imagePath: string;
   position?: p5Types.Vector;
 }
+//The interface for the data object that will be passed in from the parent once and used to communicate with the parent
+// instead of passing in props.
 export interface Controls {
   selectedPlanet: string | null;
   setInteractiveSpeed: (state: boolean) => void;
@@ -36,7 +40,6 @@ interface SolarSystemProps {
 
 //Avoid stale closure whenn SolarSystemRaw rendered twice - 
 //Seems unavoidable, react doesn't guarantee it won't be rendered again, even if props and state don't change!
-
 let isSpeedFlexible = false;
 let shouldDrawOrbits = true;
 
@@ -61,106 +64,26 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
     distance: 0,
     radius: 100,
     img: undefined,
+    imagePath: "https://i.postimg.cc/0NbzSXtw/sunmap.jpg"
   };
-  const planets: Planet[] = [
-    {
-      name: "Mercury",
-      distance: 139,
-      radius: 5,
-      speed: 0.05,
-      angle: 0,
-      img: undefined,
-    },
-    {
-      name: "Venus",
-      distance: 172,
-      radius: 12,
-      speed: 0.035,
-      angle: 1.57,
-      img: undefined,
-    },
-    {
-      name: "Earth",
-      distance: 200,
-      radius: 13,
-      speed: 0.029,
-      angle: 0.52,
-      img: undefined,
-    },
-    {
-      name: "Mars",
-      distance: 252,
-      radius: 7,
-      speed: 0.024,
-      angle: 4.71,
-      img: undefined,
-    },
-    {
-      name: "Jupiter",
-      distance: 600,
-      radius: 100,
-      speed: 0.013,
-      angle: 3.66,
-      img: undefined,
-    },
-    {
-      name: "Saturn",
-      distance: 900,
-      radius: 70,
-      speed: 0.009,
-      angle: 5.49,
-      img: undefined,
-    },
-    {
-      name: "Uranus",
-      distance: 1000,
-      radius: 25,
-      speed: 0.006,
-      angle: 2.36,
-      img: undefined,
-    },
-    {
-      name: "Neptune",
-      distance: 1100,
-      radius: 22,
-      speed: 0.005,
-      angle: 0,
-      img: undefined,
-    },
-  ];
+  const planets: Planet[] = PlanetsData as Planet[];
+
   const moon: Planet = {
     name: "Moon",
     distance: 20,
     radius: 3,
     speed: 0.05,
     angle: 0,
+    imagePath: "https://i.postimg.cc/cCXDP9JB/moonmap4k.jpg",
     img: undefined,
   };
+
   const preload = (p5: p5Types) => {
-    sun.img = p5.loadImage("https://i.postimg.cc/0NbzSXtw/sunmap.jpg");
-    planets[0].img = p5.loadImage(
-      "https://i.postimg.cc/JzTyGCQ8/mercurymap.jpg"
-    );
-    planets[1].img = p5.loadImage("https://i.postimg.cc/zGDbzGKp/venusmap.jpg");
-    planets[2].img = p5.loadImage(
-      "https://i.postimg.cc/sg3SMcdY/earthmap1k.jpg"
-    );
-    planets[3].img = p5.loadImage(
-      "https://i.postimg.cc/BQBPfKLX/mars-1k-color.jpg"
-    );
-    planets[4].img = p5.loadImage(
-      "https://i.postimg.cc/FzjdRfTC/jupitermap.jpg"
-    );
-    planets[5].img = p5.loadImage(
-      "https://i.postimg.cc/MHkfq0mj/saturnmap.jpg"
-    );
-    planets[6].img = p5.loadImage(
-      "https://i.postimg.cc/43ShFRKP/uranusmap.jpg"
-    );
-    planets[7].img = p5.loadImage(
-      "https://i.postimg.cc/V600xZn8/neptunemap.jpg"
-    );
-    moon.img = p5.loadImage("https://i.postimg.cc/cCXDP9JB/moonmap4k.jpg");
+    sun.img = p5.loadImage(sun.imagePath);
+    for (const planet of planets) {
+      planet.img = p5.loadImage(planet.imagePath);
+    }
+    moon.img = p5.loadImage(moon.imagePath);
   };
 
   const setup = (p5: p5Types, canvasParentRef: Element) => {
@@ -357,7 +280,7 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
 
 
   function keyPressed(p5: p5Types) {
-    //pass
+    //placeholder
   }
 
   function windowResized(p5: p5Types) {
@@ -376,6 +299,8 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
 
 //Won't re-render just because parent does.  
 //Only if props change (or context)
+//Sadly, this does not seem guaranteed, so we MIGHT get rendered again.
+// (Strict mode's first double-render does happen, for example)
 //https://reactjs.org/docs/react-api.html#reactmemo
 const SolarSystemMemoized = React.memo(SolarSystemRaw);
 export default SolarSystemMemoized;
