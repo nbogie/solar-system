@@ -24,15 +24,36 @@ interface Planet {
   img: p5Types.Image | undefined;
   position?: p5Types.Vector;
 }
-interface SolarSystemProps {
-  selectedPlanetRef: MutableRefObject<string | null>
+export interface Controls {
+  selectedPlanet: string | null;
+  setInteractiveSpeed: (state: boolean) => void;
+  setShouldDrawOrbits: (newVal: boolean) => void;
 }
 
+interface SolarSystemProps {
+  controlsRef: MutableRefObject<Controls | null>;
+}
+
+//Avoid stale closure whenn SolarSystemRaw rendered twice - 
+//Seems unavoidable, react doesn't guarantee it won't be rendered again, even if props and state don't change!
+
+let isSpeedFlexible = false;
+let shouldDrawOrbits = true;
+
 function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
+
+  if (props.controlsRef.current === null) {
+    console.log('setting up controls object');
+    props.controlsRef.current = {
+      selectedPlanet: 'Mars',
+      setInteractiveSpeed,
+      setShouldDrawOrbits
+    };
+  }
+
   let myCamera: p5Types.Camera;
   let cameraTargetPlanet: Planet | null = null;
   let cameraTargetPosition: p5Types.Vector;
-  let isSpeedFlexible = false;
 
   const stars: Star[] = [];
   const sun: Sun = {
@@ -168,9 +189,12 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
 
     drawStars(p5);
     drawSun(p5);
-    drawOrbits(p5);
+    if (shouldDrawOrbits) {
+      drawOrbits(p5);
+    }
     drawPlanets(p5);
   };
+
 
   const setupCamera = (p5: p5Types) => {
     myCamera = p5.createCamera();
@@ -178,6 +202,13 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
     cameraTargetPosition = p5.createVector(0, 0, 0);
     myCamera.lookAt(cameraTargetPosition.x, cameraTargetPosition.y, cameraTargetPosition.z);
   };
+
+  function setInteractiveSpeed(newVal: boolean) {
+    isSpeedFlexible = newVal;
+  }
+  function setShouldDrawOrbits(newVal: boolean) {
+    shouldDrawOrbits = newVal;
+  }
 
   function findPlanetByName(name: string): Planet | null {
     const result = planets.find(p => p.name === name);
@@ -302,9 +333,11 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
   }
 
   function updateCameraTracking(p5: p5Types) {
+    const currentControls: Controls | null = props.controlsRef.current;
+    // console.log({ currentControls })
     // if props has a selected planet but we're not yet tracking it, do so
-    if (props.selectedPlanetRef.current && (!cameraTargetPlanet || cameraTargetPlanet.name !== props.selectedPlanetRef.current)) {
-      cameraTargetPlanet = findPlanetByName(props.selectedPlanetRef.current);
+    if (currentControls && currentControls.selectedPlanet && (!cameraTargetPlanet || cameraTargetPlanet.name !== currentControls.selectedPlanet)) {
+      cameraTargetPlanet = findPlanetByName(currentControls.selectedPlanet);
     } else {
       cameraTargetPlanet = null;
     }
@@ -321,15 +354,12 @@ function SolarSystemRaw(props: SolarSystemProps): JSX.Element {
     );
 
   }
-  function toggleInteractiveSpeed() {
-    isSpeedFlexible = !isSpeedFlexible;
-  }
+
 
   function keyPressed(p5: p5Types) {
-    if (p5.key === 's') {
-      toggleInteractiveSpeed();
-    }
+    //pass
   }
+
   function windowResized(p5: p5Types) {
     //slower than it should be, currently...
     p5.resizeCanvas(p5.windowWidth, p5.windowHeight);

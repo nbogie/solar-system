@@ -13,3 +13,7 @@ li:hover {
   cursor: pointer;
   color: yellow;
 }
+
+.selected {
+  font-size: larger;
+}

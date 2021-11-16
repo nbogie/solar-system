@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AppHeader from "./components/AppHeader";
 import NavBar from "./components/NavBar";
-import SolarSystem from "./components/SolarSystem";
+import SolarSystem, { Controls } from "./components/SolarSystem";
 import './App.css';
 function App(): JSX.Element {
 
@@ -10,22 +10,42 @@ function App(): JSX.Element {
   //We'll pass this ref once to the SolarSystem component and never change it
   //but we will change what it *contains*, which won't cause a re-render.
   //thus we'll be able to pass data to the child sketch without causing a re-render of the child.
-  const selectedPlanetRef = useRef<string | null>(null);
-  const [counter, setCounter] = useState(0);
+  const controlsRef = useRef<Controls | null>(null);
+  const [shouldDrawOrbits, setDrawOrbits] = useState(true);
+  const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null);
+  const [interactiveSpeed, setInteractiveSpeed] = useState(false);
 
   function handlePlanetNameClick(name: string | null) {
-    selectedPlanetRef.current = name;
+    setSelectedPlanet(name);
   }
+
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.selectedPlanet = selectedPlanet;
+    }
+  }, [selectedPlanet]);
+
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.setInteractiveSpeed(interactiveSpeed);
+      controlsRef.current.setShouldDrawOrbits(shouldDrawOrbits);
+    }
+  }, [interactiveSpeed, shouldDrawOrbits]);
+
+
+
+
 
   return (
     <>
       <AppHeader />
-      <NavBar handlePlanetNameClick={handlePlanetNameClick} />
+      <NavBar
+        handlePlanetNameClick={handlePlanetNameClick}
+        selectedPlanet={selectedPlanet} />
       <button onClick={() => handlePlanetNameClick(null)}>stop camera-follow</button>
-      <button onClick={() => { setCounter(p => p + 1) }}>+1</button>
-      {/* demonstrating the parent app CAN get re-rendered without the child also getting re-rendered. */}
-      {counter}
-      <SolarSystem selectedPlanetRef={selectedPlanetRef} />
+      <button onClick={() => { setInteractiveSpeed(p => !p) }}>{interactiveSpeed ? 'speed: interactive' : 'speed: fixed'}</button>
+      <button onClick={() => { setDrawOrbits(p => !p) }}>{shouldDrawOrbits ? 'orbits shown' : 'orbits hidden'}</button>
+      <SolarSystem controlsRef={controlsRef} />
     </>
   );
 }
